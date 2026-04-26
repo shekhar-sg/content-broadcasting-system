@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import {$ZodErrorTree} from "zod/v4/core";
 
 export namespace HttpError {
   export class AppError extends Error {
@@ -35,7 +34,7 @@ export namespace HttpError {
 
   export function validationError(
     message = "Validation error",
-    errors: { [p: string]: string[]; [p: number]: string[]; [p: symbol]: string[] }
+    errors: Record<string, string[]>
   ): HttpError.AppError {
     return new AppError(message, StatusCodes.BAD_REQUEST, errors);
   }

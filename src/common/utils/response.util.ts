@@ -14,7 +14,7 @@ export namespace ResponseUtil {
     data: T,
     message = "Success",
     statusCode = 200,
-    meta: Record<string, unknown>
+    meta?: Record<string, unknown>
   ): Response {
     const body: ApiResponse<T> = { success: true, message, data };
     if (meta) body.meta = meta;

@@ -1,4 +1,4 @@
-import type { Role } from "../../../generated/prisma/client";
+export type Role = "PRINCIPAL" | "TEACHER";
 
 export interface UserRecord {
   id: string;
@@ -16,5 +16,5 @@ export interface UserRepository {
     email: string;
     passwordHash: string;
     role: Role;
-  }): Promise<UserRecord | null>;
+  }): Promise<UserRecord>;
 }
