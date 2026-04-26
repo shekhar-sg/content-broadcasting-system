@@ -14,8 +14,8 @@ enum Role {
 
 enum ContentStatus {
   PENDING
-  Approved
-  Rejected
+  APPROVED
+  REJECTED
 }
 
 model User {
