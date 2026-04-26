@@ -1,7 +1,20 @@
 {
+  "scripts": {
+    "start": "node dist/src/main.js",
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc --project tsconfig.json",
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "studio": "prisma studio",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write ."
+  },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "argon2": "^0.44.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

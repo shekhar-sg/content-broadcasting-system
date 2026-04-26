@@ -1,10 +1,12 @@
 import { StatusCodes } from "http-status-codes";
+import {$ZodErrorTree} from "zod/v4/core";
 
 export namespace HttpError {
   export class AppError extends Error {
     constructor(
       message: string,
-      public readonly status: number
+      public readonly status: number,
+      public readonly errors?: Record<string, string[] | undefined>
     ) {
       super(message);
       this.name = "AppError";
@@ -29,5 +31,12 @@ export namespace HttpError {
 
   export function conflict(message = "Conflict"): AppError {
     return new AppError(message, StatusCodes.CONFLICT);
+  }
+
+  export function validationError(
+    message = "Validation error",
+    errors: { [p: string]: string[]; [p: number]: string[]; [p: symbol]: string[] }
+  ): HttpError.AppError {
+    return new AppError(message, StatusCodes.BAD_REQUEST, errors);
   }
 }

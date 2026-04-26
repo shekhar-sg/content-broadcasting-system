@@ -1,12 +1,26 @@
 import { createApp } from "./app";
 import { Config } from "./config/config.service";
+import { Database } from "./prisma/prisma.service";
 
 async function bootstrap(): Promise<void> {
+  const prisma = Database.getInstance();
+  await prisma.$connect();
+
   const app = createApp();
 
-  app.listen(Config.Service.port, () => {
+  const server = app.listen(Config.Service.port, () => {
     console.log(`Server is running on http://localhost:${Config.Service.port}`);
   });
+
+  const shutdown = async (): Promise<void> => {
+    server.close(async () => {
+      await prisma.$disconnect();
+      process.exit(0);
+    });
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 bootstrap().catch((error) => {
