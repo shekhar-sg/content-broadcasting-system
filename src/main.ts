@@ -1,40 +1,10 @@
-import { createApp } from "./app";
 import { Config } from "./config/config.service";
-import { AnalyticsModule } from "./models/analytics/analytics.namespace";
-import { AnalyticsRepository } from "./models/analytics/analytics.repository";
-import { ApprovalModule } from "./models/approval/approval.namespace";
-import { ApprovalRepository } from "./models/approval/approval.repository";
-import { AuthModule } from "./models/auth/auth.namespace";
-import { UserRepository } from "./models/auth/auth.repository";
-import { BroadcastModule } from "./models/broadcast/broadcast.namespace";
-import { BroadcastRepository } from "./models/broadcast/broadcast.repository";
-import { ContentModule } from "./models/content/content.namespace";
-import { ContentRepository } from "./models/content/content.repository";
 import { Database } from "./prisma/prisma.service";
+import { disconnectAppDependencies, getApp } from "./server";
 
 async function bootstrap() {
-  const prisma = Database.getInstance();
-  await prisma.$connect();
-
-  const userRepository = new UserRepository(prisma);
-  const contentRepository = new ContentRepository(prisma);
-  const approvalRepository = new ApprovalRepository(prisma);
-  const broadcastRepository = new BroadcastRepository(prisma);
-  const analyticsRepository = new AnalyticsRepository(prisma);
-
-  const broadcastService = new BroadcastModule.Service(broadcastRepository);
-
-  const app = createApp({
-    authService: new AuthModule.Service(userRepository),
-    contentService: new ContentModule.Service(contentRepository),
-    approvalService: new ApprovalModule.Service(approvalRepository, async (record) => {
-      if (record.uploadedBy) {
-        await broadcastService.invalidateTeacherCache(record.uploadedBy);
-      }
-    }),
-    broadcastService,
-    analyticsService: new AnalyticsModule.Service(analyticsRepository),
-  });
+  await Database.getInstance().$connect();
+  const app = await getApp();
 
   const server = app.listen(Config.Service.port, () => {
     console.log(`Server is running on http://localhost:${Config.Service.port}`);
@@ -42,7 +12,7 @@ async function bootstrap() {
 
   const shutdown = async (): Promise<void> => {
     server.close(async () => {
-      await prisma.$disconnect();
+      await disconnectAppDependencies();
       process.exit(0);
     });
   };
@@ -51,4 +21,13 @@ async function bootstrap() {
   process.on("SIGTERM", shutdown);
 }
 
-export default bootstrap
+if (require.main === module) {
+  bootstrap().catch((error: unknown) => {
+    console.error("Failed to start server", error);
+    void disconnectAppDependencies().finally(() => {
+      process.exit(1);
+    });
+  });
+}
+
+export default bootstrap;

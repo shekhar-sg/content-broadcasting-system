@@ -22,4 +22,13 @@ export namespace Database {
     }
     return instance;
   }
+
+  export async function disconnect(): Promise<void> {
+    if (!instance) {
+      return;
+    }
+
+    await instance.$disconnect();
+    instance = null;
+  }
 }

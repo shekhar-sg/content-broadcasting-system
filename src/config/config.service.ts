@@ -9,27 +9,27 @@ export namespace Config {
     }
 
     static get port(): number {
-      return parseInt(this.get("PORT", "3000"), 10);
+      return parseInt(Service.get("PORT", "3000"), 10);
     }
 
     static get jwtSecret(): string {
-      return this.get("JWT_SECRET");
+      return Service.get("JWT_SECRET");
     }
 
     static get jwtExpiry(): string {
-      return this.get("JWT_EXPIRES_IN", "7d");
+      return Service.get("JWT_EXPIRES_IN", "7d");
     }
 
     static get uploadDir(): string {
-      return this.get("UPLOAD_DIR", "uploads");
+      return Service.get("UPLOAD_DIR", process.env.VERCEL ? "/tmp/uploads" : "uploads");
     }
 
     static get maxFileSize(): number {
-      return parseInt(this.get("MAX_FILE_SIZE", "10485760"), 10);
+      return parseInt(Service.get("MAX_FILE_SIZE", "10485760"), 10);
     }
 
     static get redisUrl(): string {
-      return this.get("REDIS_URL", "redis://localhost:6379");
+      return Service.get("REDIS_URL", "redis://localhost:6379");
     }
   }
 }

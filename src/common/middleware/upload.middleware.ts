@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import type { Request } from "express";
@@ -8,7 +9,8 @@ import { Constants } from "../utils/constants.util";
 export namespace UploadMiddleware {
   const storage = multer.diskStorage({
     destination: (_req, _file, cb) => {
-      const uploadDir = Config.Service.uploadDir;
+      const uploadDir = path.resolve(Config.Service.uploadDir);
+      fs.mkdirSync(uploadDir, { recursive: true });
       cb(null, uploadDir);
     },
     filename: (_req, file, cb) => {
@@ -33,6 +35,6 @@ export namespace UploadMiddleware {
   export const single = multer({
     storage,
     fileFilter,
-    limits: { fieldSize: Constants.MAX_FILE_SIZE },
+    limits: { fileSize: Config.Service.maxFileSize },
   }).single("file");
 }
