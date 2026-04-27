@@ -1,9 +1,9 @@
 {
   "name": "content-broadcasting-system",
   "description": "Backend for teacher-to-student content broadcasting with scheduling and approval workflow",
-  "main": "dist/src/main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "node dist/src/main.js",
+    "start": "node dist/main.js",
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
     "postinstall": "prisma generate",
