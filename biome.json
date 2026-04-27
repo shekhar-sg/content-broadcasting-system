@@ -51,7 +51,14 @@
     }
   },
   "files": {
-    "includes": ["src/**/*.ts", "src/**/*.js", "prisma/**/*.ts", "prisma/**/*.js"],
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.js",
+      "prisma/**/*.ts",
+      "prisma/**/*.js",
+      "api/**/*.ts",
+      "api/**/*.js"
+    ],
     "ignoreUnknown": true
   }
 }
