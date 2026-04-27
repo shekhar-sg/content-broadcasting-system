@@ -1,7 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { z } from "zod";
 import type { AuthGuard } from "../../common/guards/auth.guard";
-import { HttpError } from "../../common/utils/http.error";
 import { ResponseUtil } from "../../common/utils/response.util";
 import { ApprovalSchemas } from "./approval.schemas";
 import type { ApprovalService } from "./approval.service";
@@ -18,19 +16,10 @@ export class ApprovalController {
     }
   };
 
-  approve = async (
-    req: AuthGuard.AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const params = ApprovalSchemas.params.safeParse(req.params);
-    if (!params.success) {
-      next(HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors));
-      return;
-    }
-
+  approve = async (req: AuthGuard.AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const item = await this.service.approveContent(params.data.contentId, req.user!.userId);
+      const { contentId } = ApprovalSchemas.params.parse(req.params);
+      const item = await this.service.approveContent(contentId, req.user!.userId);
       ResponseUtil.success(res, item, "Content approved");
     } catch (error) {
       next(error);
@@ -38,25 +27,17 @@ export class ApprovalController {
   };
 
   reject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const params = ApprovalSchemas.params.safeParse(req.params);
-    if (!params.success) {
-      next(HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors));
-      return;
-    }
-
-    const body = ApprovalSchemas.reject.safeParse(req.body);
-    if (!body.success) {
-      next(HttpError.validationError("Validation error", z.flattenError(body.error).fieldErrors));
-      return;
-    }
-
     try {
-      const item = await this.service.rejectContent(params.data.contentId, body.data.reason);
+      const { contentId } = ApprovalSchemas.params.parse(req.params);
+      const { reason } = ApprovalSchemas.reject.parse(req.body);
+      const item = await this.service.rejectContent(contentId, reason);
       ResponseUtil.success(res, item, "Content rejected");
     } catch (error) {
       next(error);
     }
   };
 }
+
+
 
 
