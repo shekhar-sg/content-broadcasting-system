@@ -77,6 +77,14 @@ GET /content/live/:teacherId
 GET /content/live/:teacherId?subject=maths
 ```
 
+### Postman collection
+
+```
+GET /docs/postman
+```
+
+Hit that endpoint in your browser — it'll download the full Postman collection. Import it into Postman via **File → Import** and you're good to go.
+
 ### Analytics (principal)
 
 ```
