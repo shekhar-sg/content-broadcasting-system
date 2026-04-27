@@ -1,25 +1,11 @@
-import fs from "node:fs";
-import crypto from "node:crypto";
 import path from "node:path";
 import type { Request } from "express";
 import multer, { type FileFilterCallback } from "multer";
+import { cloudinaryStorage } from "../../config/cloudinary.config";
 import { Config } from "../../config/config.service";
 import { Constants } from "../utils/constants.util";
 
 export namespace UploadMiddleware {
-  const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      const uploadDir = path.resolve(Config.Service.uploadDir);
-      fs.mkdirSync(uploadDir, { recursive: true });
-      cb(null, uploadDir);
-    },
-    filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname).toLowerCase();
-      const unique = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${ext}`;
-      cb(null, unique);
-    },
-  });
-
   function fileFilter(_req: Request, file: Express.Multer.File, cb: FileFilterCallback): void {
     const ext = path.extname(file.originalname).toLowerCase();
     const mimeOk = (Constants.ALLOWED_MIME_TYPES as readonly string[]).includes(file.mimetype);
@@ -33,8 +19,12 @@ export namespace UploadMiddleware {
   }
 
   export const single = multer({
-    storage,
+    storage: cloudinaryStorage,
     fileFilter,
     limits: { fileSize: Config.Service.maxFileSize },
   }).single("file");
 }
+
+
+
+

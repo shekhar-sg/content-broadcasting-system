@@ -31,5 +31,22 @@ export namespace Config {
     static get redisUrl(): string {
       return Service.get("REDIS_URL", "redis://localhost:6379");
     }
+
+    static get cloudinaryCloudName(): string {
+      return Service.get("CLOUDINARY_CLOUD_NAME");
+    }
+
+    static get cloudinaryApiKey(): string {
+      return Service.get("CLOUDINARY_API_KEY");
+    }
+
+    static get cloudinaryApiSecret(): string {
+      return Service.get("CLOUDINARY_API_SECRET");
+    }
+
+    static get cloudinaryFolder(): string {
+      return Service.get("CLOUDINARY_FOLDER", "content-broadcasting");
+    }
   }
 }
+

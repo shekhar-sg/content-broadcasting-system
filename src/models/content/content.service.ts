@@ -44,3 +44,9 @@ export class ContentService {
     return this.content.findAll(query);
   }
 }
+
+
+
+
+
+
