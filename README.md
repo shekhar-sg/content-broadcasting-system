@@ -1,179 +1,98 @@
-# Content Broadcasting System Backend
+# Content Broadcasting System
 
-Backend-only implementation of the teacher-to-student content broadcasting assignment using **Express 5**, **TypeScript**, **Prisma 7**, **PostgreSQL**, **Zod**, **argon2**, and **Redis**.
+Backend for teacher-to-student content broadcasting with scheduling, approval workflow, and live rotation.
 
 ## Stack
 
-- **Node.js + Express 5** 
-- **TypeScript** 
-- **Database:** PostgreSQL
-- **ORM:** Prisma 7 with `@prisma/adapter-pg`
-- **Validation:** Zod
-- **Auth:** JWT + argon2
-- **Uploads:** Multer 2 (local storage)
-- **Caching:** Redis via ioredis
-
-## Folder structure
-
-```text
-docs/
-  postman/
-prisma/
-  migrations/
-  schema.prisma
-  seed.ts
-src/
-  create-app.ts
-  main.ts
-  common/
-    filters/
-    guards/
-    middleware/
-    utils/
-  config/
-  modules/
-    analytics/
-    approval/
-    auth/
-    broadcast/
-    content/
-  prisma/
-```
+- **Express 5** + **TypeScript**
+- **PostgreSQL** via **Prisma 7**
+- **Zod** validation · **JWT** + **argon2** auth
+- **Cloudinary** file uploads (streamed directly, no local disk)
+- **Redis** caching for live broadcast
 
 ## Setup
 
-1. Install dependencies
-
 ```bash
 npm install
-```
-
-2. Copy env values
-
-```bash
 cp .env.example .env
 ```
 
-3. Create a PostgreSQL database and update `DATABASE_URL` in `.env`
-
-```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/content_broadcasting
-```
-
-4. Generate the Prisma client and apply migrations
+Fill in `.env` — at minimum you need `DATABASE_URL`, `JWT_SECRET`, and the three `CLOUDINARY_*` vars.
 
 ```bash
-npm run generate
-npm run migrate
+npm run migrate:deploy   # run migrations
+npm run seed             # create principal + demo teacher
+npm run dev              # start dev server
 ```
 
-5. Seed the principal and demo teacher
+## Scripts
 
-```bash
-npm run seed
-```
-
-6. Start the API
-
-```bash
-npm run dev
-```
-
-## Available scripts
-
-```bash
-npm run dev         # tsx watch
-npm run build       # compile TypeScript
-npm test            # run Vitest
-npm run generate    # prisma generate
-npm run migrate     # prisma migrate deploy
-npm run db:push     # sync schema directly in local development
-npm run seed        # seed principal + demo teacher
-npm run studio      # prisma studio
-npm run format      # biome format
-```
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start with tsx watch |
+| `npm run build` | Compile TypeScript |
+| `npm run migrate:dev` | Create + apply a new migration |
+| `npm run migrate:deploy` | Apply existing migrations |
+| `npm run db:push` | Sync schema without migration (local dev) |
+| `npm run seed` | Seed principal + demo teacher |
+| `npm run studio` | Open Prisma Studio |
+| `npm run check` | Biome format + lint |
 
 ## Seeded accounts
 
-- **Principal:** `principal@school.edu` / `Admin@1234`
-- **Teacher:** `teacher1@school.edu` / `Teacher@123`
+| Role | Email | Password |
+|------|-------|----------|
+| Principal | `principal@school.edu` | `Admin@1234` |
+| Teacher | `teacher1@school.edu` | `Teacher@123` |
 
-## API overview
+## API
 
 ### Auth
 
-- `POST /api/auth/register` — teacher self-registration only
-- `POST /api/auth/login` — principal or teacher login
-
-### Teacher content
-
-- `POST /api/content` — upload content
-- `GET /api/content/mine` — list own content with status
-
-### Principal moderation
-
-- `GET /api/content` — list all content
-- `GET /api/approval/pending` — list pending content
-- `PATCH /api/approval/:contentId/approve` — approve content
-- `PATCH /api/approval/:contentId/reject` — reject content with reason
-
-### Public broadcasting
-
-- `GET /content/live/:teacherId`
-- Optional query: `?subject=maths`
-
-### Analytics
-
-- `GET /api/analytics/subjects`
-- `GET /api/analytics/subjects/most-active`
-- `GET /api/analytics/teachers`
-
-## Upload rules
-
-- Allowed formats: `jpg`, `jpeg`, `png`, `gif`
-- Max size: `10 MB`
-- Stored locally in `uploads/`
-- Filenames are server-generated
-
-## Scheduling behavior
-
-- Content must be **approved**
-- Content must have both `startTime` and `endTime`
-- Content is eligible only when `startTime <= now < endTime`
-- Rotation is computed per **teacher + subject slot**
-- Rotation uses a **UTC midnight anchor** so the order is deterministic
-- If no content is eligible, the public API returns:
-
-```json
-{
-  "success": true,
-  "message": "No content available",
-  "data": null
-}
+```
+POST /api/auth/register
+POST /api/auth/login
 ```
 
-## Validation rules
+### Content (teacher)
 
-- `title` is required
-- `subject` must be one of the configured subjects
-- `startTime` and `endTime` must be provided together
-- `endTime` must be after `startTime`
-- Only principals can approve or reject
-- Rejection requires a non-empty reason
-
-## Postman documentation
-
-Import this collection into Postman:
-
-```text
-docs/postman/content-broadcasting-system.postman_collection.json
+```
+POST   /api/content        multipart/form-data — file + metadata
+GET    /api/content/mine   ?page=1&limit=10&subject=&status=
 ```
 
-It includes auth, teacher, principal, analytics, and public broadcast requests with collection variables.
+### Moderation (principal)
 
-## Assumptions
+```
+GET    /api/content                          ?page&limit&subject&status&teacherId
+GET    /api/approval/pending
+PATCH  /api/approval/:contentId/approve
+PATCH  /api/approval/:contentId/reject       { reason }
+```
 
-- Principal accounts are seeded, not self-registered
-- One uploaded content item belongs to one subject slot
-- New content is appended to the end of the slot rotation order
-- Redis is optional; if unavailable, live broadcasting still works
+### Live broadcast (public)
+
+```
+GET /content/live/:teacherId
+GET /content/live/:teacherId?subject=maths
+```
+
+### Analytics (principal)
+
+```
+GET /api/analytics/subjects
+GET /api/analytics/subjects/most-active
+GET /api/analytics/teachers
+```
+
+## Subjects
+
+`maths` · `science` · `english` · `history` · `geography` · `physics` · `chemistry` · `biology` · `computer`
+
+## Notes
+
+- Principal accounts are seeded only — teachers self-register
+- Uploads go directly to Cloudinary CDN; `filePath` in DB is a permanent HTTPS URL
+- Redis is optional — if unavailable, live broadcast falls back to DB on every request
+- Live rotation uses a UTC midnight anchor so slot order is deterministic across requests
+

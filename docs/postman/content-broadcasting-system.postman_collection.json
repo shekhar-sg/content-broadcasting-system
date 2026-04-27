@@ -2,30 +2,15 @@
   "info": {
     "name": "Content Broadcasting System",
     "_postman_id": "d4d42663-c447-4dff-bb98-4f0a7b624001",
-    "description": "Postman collection for the TypeScript + Prisma Content Broadcasting System backend.",
+    "description": "Postman collection for the Content Broadcasting System backend.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000"
-    },
-    {
-      "key": "teacherToken",
-      "value": ""
-    },
-    {
-      "key": "principalToken",
-      "value": ""
-    },
-    {
-      "key": "teacherId",
-      "value": "replace-with-teacher-id"
-    },
-    {
-      "key": "contentId",
-      "value": "replace-with-content-id"
-    }
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "teacherToken", "value": "" },
+    { "key": "principalToken", "value": "" },
+    { "key": "teacherId", "value": "replace-with-teacher-id" },
+    { "key": "contentId", "value": "replace-with-content-id" }
   ],
   "item": [
     {
@@ -35,15 +20,10 @@
           "name": "Register Teacher",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Teacher Two\",\n  \"email\": \"teacher2@school.edu\",\n  \"password\": \"Teacher@123\"\n}"
+              "raw": "{\n  \"name\": \"Teacher Two\",\n  \"email\": \"teacher2@school.edu\",\n  \"password\": \"Teacher@123\",\n  \"confirmPassword\": \"Teacher@123\"\n}"
             },
             "url": "{{baseUrl}}/api/auth/register"
           }
@@ -52,12 +32,7 @@
           "name": "Login Teacher",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"teacher1@school.edu\",\n  \"password\": \"Teacher@123\"\n}"
@@ -69,12 +44,7 @@
           "name": "Login Principal",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"principal@school.edu\",\n  \"password\": \"Admin@1234\"\n}"
@@ -91,50 +61,17 @@
           "name": "Upload Content",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{teacherToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
             "body": {
               "mode": "formdata",
               "formdata": [
-                {
-                  "key": "title",
-                  "value": "Maths Worksheet A",
-                  "type": "text"
-                },
-                {
-                  "key": "subject",
-                  "value": "maths",
-                  "type": "text"
-                },
-                {
-                  "key": "description",
-                  "value": "Chapter 1 worksheet",
-                  "type": "text"
-                },
-                {
-                  "key": "startTime",
-                  "value": "2026-04-25T10:00:00.000Z",
-                  "type": "text"
-                },
-                {
-                  "key": "endTime",
-                  "value": "2026-04-25T12:00:00.000Z",
-                  "type": "text"
-                },
-                {
-                  "key": "rotationDuration",
-                  "value": "5",
-                  "type": "text"
-                },
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": ""
-                }
+                { "key": "title", "value": "Maths Worksheet A", "type": "text" },
+                { "key": "subject", "value": "maths", "type": "text" },
+                { "key": "description", "value": "Chapter 1 worksheet", "type": "text" },
+                { "key": "startTime", "value": "2026-06-01T08:00:00.000Z", "type": "text" },
+                { "key": "endTime", "value": "2026-06-01T18:00:00.000Z", "type": "text" },
+                { "key": "rotationDuration", "value": "5", "type": "text" },
+                { "key": "file", "type": "file", "src": "" }
               ]
             },
             "url": "{{baseUrl}}/api/content"
@@ -144,12 +81,7 @@
           "name": "List My Content",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{teacherToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacherToken}}" }],
             "url": "{{baseUrl}}/api/content/mine?page=1&limit=10"
           }
         }
@@ -162,12 +94,7 @@
           "name": "List All Content",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{principalToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{principalToken}}" }],
             "url": "{{baseUrl}}/api/content?page=1&limit=10"
           }
         },
@@ -175,12 +102,7 @@
           "name": "List Pending Content",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{principalToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{principalToken}}" }],
             "url": "{{baseUrl}}/api/approval/pending"
           }
         },
@@ -188,12 +110,7 @@
           "name": "Approve Content",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{principalToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{principalToken}}" }],
             "url": "{{baseUrl}}/api/approval/{{contentId}}/approve"
           }
         },
@@ -202,14 +119,8 @@
           "request": {
             "method": "PATCH",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{principalToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Authorization", "value": "Bearer {{principalToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -227,12 +138,7 @@
           "name": "Subject Summary",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{principalToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{principalToken}}" }],
             "url": "{{baseUrl}}/api/analytics/subjects"
           }
         },
@@ -240,12 +146,7 @@
           "name": "Most Active Subject",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{principalToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{principalToken}}" }],
             "url": "{{baseUrl}}/api/analytics/subjects/most-active"
           }
         },
@@ -253,12 +154,7 @@
           "name": "Teacher Summary",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{principalToken}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{principalToken}}" }],
             "url": "{{baseUrl}}/api/analytics/teachers"
           }
         }
