@@ -9,6 +9,8 @@ import { ApprovalRepository } from './models/approval/approval.repository';
 import {ApprovalModule} from "./models/approval/approval.namespace";
 import {BroadcastRepository} from "./models/broadcast/broadcast.repository";
 import {BroadcastModule} from "./models/broadcast/broadcast.namespace";
+import {AnalyticsModule} from "./models/analytics/analytics.namespace";
+import {AnalyticsRepository} from "./models/analytics/analytics.repository";
 
 async function bootstrap(): Promise<void> {
   const prisma = Database.getInstance();
@@ -18,12 +20,14 @@ async function bootstrap(): Promise<void> {
   const contentRepository = new ContentRepository(prisma);
   const approvalRepository = new ApprovalRepository(prisma);
   const broadcastRepository = new BroadcastRepository(prisma);
+  const analyticsRepository = new AnalyticsRepository(prisma);
 
   const app = createApp({
     authService: new AuthModule.Service(userRepository),
     contentService: new ContentModule.Service(contentRepository),
     approvalService: new ApprovalModule.Service(approvalRepository),
     broadcastService: new BroadcastModule.Service(broadcastRepository),
+    analyticsService: new AnalyticsModule.Service(analyticsRepository),
   });
 
   const server = app.listen(Config.Service.port, () => {

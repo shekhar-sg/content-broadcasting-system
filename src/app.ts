@@ -3,14 +3,16 @@ import express, { type Express } from "express";
 import { ApprovalModule } from "./models/approval/approval.namespace";
 import { AuthModule } from "./models/auth/auth.namespace";
 import { ContentModule } from "./models/content/content.namespace";
-import {BroadcastModule} from "./models/broadcast/broadcast.namespace";
+import { BroadcastModule } from "./models/broadcast/broadcast.namespace";
+import { AnalyticsModule } from "./models/analytics/analytics.namespace";
+import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 
 export interface AppServices {
   authService?: AuthModule.Service;
   contentService?: ContentModule.Service;
   approvalService?: ApprovalModule.Service;
   broadcastService?: BroadcastModule.Service;
-
+  analyticsService?: AnalyticsModule.Service;
 }
 
 export function createApp(services: AppServices = {}): Express {
@@ -39,6 +41,12 @@ export function createApp(services: AppServices = {}): Express {
   if (services.broadcastService) {
     app.use("/content", BroadcastModule.createRouter(services.broadcastService));
   }
+
+  if (services.analyticsService) {
+    app.use("api/analytics", AnalyticsModule.createRouter(services.analyticsService));
+  }
+
+  app.use(HttpExceptionFilter.handle);
 
   return app;
 }
