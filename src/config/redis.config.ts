@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { Config } from "./config.service";
 
 export namespace RedisConfig {
   let _client: Redis | null = null;
@@ -9,7 +10,7 @@ export namespace RedisConfig {
     _initialized = true;
 
     try {
-      const client = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
+      const client = new Redis(Config.Service.redisUrl, {
         enableOfflineQueue: false,
         maxRetriesPerRequest: 0,
         connectTimeout: 2000,

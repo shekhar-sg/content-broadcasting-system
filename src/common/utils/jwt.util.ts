@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { Config } from "../../config/config.service";
 
 export namespace JWT {
   export interface Payload {
@@ -8,18 +9,18 @@ export namespace JWT {
   }
 
   export function sign(payload: Payload): string {
-    const secret = process.env.JWT_SECRET;
+    const secret = Config.Service.jwtSecret;
     if (!secret) {
       throw new Error("JWT_SECRET is not defined");
     }
     const options: jwt.SignOptions = {
-      expiresIn: (process.env.JWT_EXPIRES_IN ?? "7d") as NonNullable<jwt.SignOptions["expiresIn"]>,
+      expiresIn: Config.Service.jwtExpiry as NonNullable<jwt.SignOptions["expiresIn"]>,
     };
     return jwt.sign(payload, secret, options);
   }
 
   export function verify(token: string): Payload {
-    const secret = process.env.JWT_SECRET;
+    const secret = Config.Service.jwtSecret;
     if (!secret) {
       throw new Error("JWT_SECRET is not defined");
     }

@@ -1,4 +1,7 @@
 {
+  "name": "content-broadcasting-system",
+  "description": "Backend for teacher-to-student content broadcasting with scheduling and approval workflow",
+  "main": "dist/src/main.js",
   "scripts": {
     "start": "node dist/src/main.js",
     "dev": "tsx watch src/main.ts",
@@ -9,7 +12,11 @@
     "studio": "prisma studio",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "check": "biome check --write ."
+    "check": "biome check --write .",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

@@ -2,12 +2,13 @@ import crypto from "node:crypto";
 import path from "node:path";
 import type { Request } from "express";
 import multer, { type FileFilterCallback } from "multer";
+import { Config } from "../../config/config.service";
 import { Constants } from "../utils/constants.util";
 
 export namespace UploadMiddleware {
   const storage = multer.diskStorage({
     destination: (_req, _file, cb) => {
-      const uploadDir = process.env.UPLOAD_DIR ?? "uploads";
+      const uploadDir = Config.Service.uploadDir;
       cb(null, uploadDir);
     },
     filename: (_req, file, cb) => {
