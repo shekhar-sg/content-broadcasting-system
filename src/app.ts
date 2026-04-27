@@ -1,11 +1,13 @@
 import cors from "cors";
 import express, { type Express } from "express";
+import { ApprovalModule } from "./models/approval/approval.namespace";
 import { AuthModule } from "./models/auth/auth.namespace";
 import { ContentModule } from "./models/content/content.namespace";
 
 export interface AppServices {
   authService?: AuthModule.Service;
   contentService?: ContentModule.Service;
+  approvalService?: ApprovalModule.Service;
 }
 
 export function createApp(services: AppServices = {}): Express {
@@ -25,6 +27,10 @@ export function createApp(services: AppServices = {}): Express {
 
   if (services.contentService) {
     app.use("/api/content", ContentModule.createRouter(services.contentService));
+  }
+
+  if (services.approvalService) {
+    app.use("/api/approval", ApprovalModule.createRouter(services.approvalService));
   }
 
   return app;
