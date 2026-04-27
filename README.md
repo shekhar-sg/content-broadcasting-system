@@ -23,7 +23,7 @@ prisma/
   schema.prisma
   seed.ts
 src/
-  app.ts
+  create-app.ts
   main.ts
   common/
     filters/

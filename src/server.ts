@@ -1,6 +1,6 @@
 import "dotenv/config";
 import type { Express } from "express";
-import { createApp } from "./app";
+import { createApp } from "./create-app";
 import { AnalyticsModule } from "./models/analytics/analytics.namespace";
 import { AnalyticsRepository } from "./models/analytics/analytics.repository";
 import { ApprovalModule } from "./models/approval/approval.namespace";
