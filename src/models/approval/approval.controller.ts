@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
+import { z } from "zod";
 import type { AuthGuard } from "../../common/guards/auth.guard";
+import { HttpError } from "../../common/utils/http.error";
 import { ResponseUtil } from "../../common/utils/response.util";
 import { ApprovalSchemas } from "./approval.schemas";
 import type { ApprovalService } from "./approval.service";
@@ -22,8 +24,12 @@ export class ApprovalController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { contentId } = ApprovalSchemas.params.parse(req.params);
-      const item = await this.service.approveContent(contentId, req.user!.userId);
+      const params = ApprovalSchemas.params.safeParse(req.params);
+      if (!params.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors);
+      }
+
+      const item = await this.service.approveContent(params.data.contentId, req.user!.userId);
       ResponseUtil.success(res, item, "Content approved");
     } catch (error) {
       next(error);
@@ -32,9 +38,17 @@ export class ApprovalController {
 
   reject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { contentId } = ApprovalSchemas.params.parse(req.params);
-      const { reason } = ApprovalSchemas.reject.parse(req.body);
-      const item = await this.service.rejectContent(contentId, reason);
+      const params = ApprovalSchemas.params.safeParse(req.params);
+      if (!params.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors);
+      }
+
+      const body = ApprovalSchemas.reject.safeParse(req.body);
+      if (!body.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(body.error).fieldErrors);
+      }
+
+      const item = await this.service.rejectContent(params.data.contentId, body.data.reason);
       ResponseUtil.success(res, item, "Content rejected");
     } catch (error) {
       next(error);

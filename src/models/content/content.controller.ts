@@ -1,7 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
+import { z } from "zod";
 import type { AuthGuard } from "../../common/guards/auth.guard";
+import { HttpError } from "../../common/utils/http.error";
 import { ResponseUtil } from "../../common/utils/response.util";
 import type { ContentRecord } from "./content.contracts";
+import { ContentSchemas } from "./content.schemas";
 import type { ContentService } from "./content.service";
 
 export function sanitizeContent(content: ContentRecord): Omit<ContentRecord, "filePath"> {
@@ -14,7 +17,16 @@ export class ContentController {
 
   create = async (req: AuthGuard.AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const content = await this.service.createContent(req.user!.userId, req.body, req.file!);
+      if (!req.file) {
+        throw HttpError.badRequest("File is required");
+      }
+
+      const body = ContentSchemas.create.safeParse(req.body);
+      if (!body.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(body.error).fieldErrors);
+      }
+
+      const content = await this.service.createContent(req.user!.userId, body.data, req.file);
       ResponseUtil.created(res, sanitizeContent(content), "Content uploaded");
     } catch (error) {
       next(error);
@@ -27,7 +39,12 @@ export class ContentController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const result = await this.service.listTeacherContent(req.user!.userId, req.query);
+      const query = ContentSchemas.listQuery.safeParse(req.query);
+      if (!query.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(query.error).fieldErrors);
+      }
+
+      const result = await this.service.listTeacherContent(req.user!.userId, query.data);
       ResponseUtil.success(res, result.items.map(sanitizeContent), "Content fetched", 200, {
         total: result.total,
       });
@@ -38,7 +55,12 @@ export class ContentController {
 
   listAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this.service.listAllContent(req.query);
+      const query = ContentSchemas.listQuery.safeParse(req.query);
+      if (!query.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(query.error).fieldErrors);
+      }
+
+      const result = await this.service.listAllContent(query.data);
       ResponseUtil.success(res, result.items.map(sanitizeContent), "Content fetched", 200, {
         total: result.total,
       });

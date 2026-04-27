@@ -1,10 +1,21 @@
 import type { NextFunction, Request, Response } from "express";
+import { ZodError, z } from "zod";
 import { HttpError } from "../utils/http.error";
 
 export namespace HttpExceptionFilter {
   export function handle(err: Error, req: Request, res: Response, next: NextFunction): void {
     if (res.headersSent) {
       next(err);
+      return;
+    }
+
+    // ZodError safety net — catches any raw .parse() that escapes a controller
+    if (err instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: z.flattenError(err).fieldErrors,
+      });
       return;
     }
 
@@ -24,6 +35,7 @@ export namespace HttpExceptionFilter {
     res.status(status).json({
       success: false,
       message,
+      ...(err instanceof HttpError.AppError && err.errors ? { errors: err.errors } : {}),
     });
   }
 }

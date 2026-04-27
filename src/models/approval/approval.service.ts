@@ -1,6 +1,5 @@
 import { HttpError } from "../../common/utils/http.error";
 import type { ApprovalRecord, ApprovalRepository } from "./approval.contracts";
-import { ApprovalSchemas } from "./approval.schemas";
 
 export class ApprovalService {
   constructor(
@@ -31,7 +30,6 @@ export class ApprovalService {
   }
 
   async rejectContent(contentId: string, reason: string): Promise<ApprovalRecord> {
-    const payload = ApprovalSchemas.reject.parse({ reason });
     const record = await this.repository.findById(contentId);
     if (!record) {
       throw HttpError.notFound("Content not found");
@@ -40,10 +38,7 @@ export class ApprovalService {
       throw HttpError.badRequest("Only pending content can be rejected");
     }
 
-    const rejected = await this.repository.reject({
-      contentId,
-      reason: payload.reason,
-    });
+    const rejected = await this.repository.reject({ contentId, reason });
     await this.onDecision?.(rejected);
     return rejected;
   }

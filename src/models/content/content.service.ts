@@ -4,46 +4,43 @@ import {
   type ContentRecord,
   type ContentRepository,
   ContentStatus,
+  type ListQueryInput,
   type ListResult,
 } from "./content.contracts";
-import { ContentSchemas } from "./content.schemas";
+import type { CreateContentInput } from "./content.schemas";
 
 export class ContentService {
   constructor(private readonly content: ContentRepository) {}
 
   async createContent(
     teacherId: string,
-    body: unknown,
+    body: CreateContentInput,
     file: Express.Multer.File
   ): Promise<ContentRecord> {
     if (!file) {
       throw HttpError.badRequest("File is required");
     }
 
-    const payload = ContentSchemas.create.parse(body);
-
     return this.content.create({
-      title: payload.title,
-      description: payload.description ?? null,
-      subject: payload.subject,
+      title: body.title,
+      description: body.description ?? null,
+      subject: body.subject,
       filePath: file.path,
       fileType: file.mimetype,
       fileSize: file.size,
       uploadedBy: teacherId,
       status: ContentStatus.PENDING,
-      startTime: payload.startTime ? new Date(payload.startTime) : null,
-      endTime: payload.endTime ? new Date(payload.endTime) : null,
-      rotationDuration: payload.rotationDuration,
+      startTime: body.startTime ? new Date(body.startTime) : null,
+      endTime: body.endTime ? new Date(body.endTime) : null,
+      rotationDuration: body.rotationDuration,
     });
   }
 
-  async listTeacherContent(teacherId: string, query: unknown): Promise<ListResult> {
-    const filters = ContentSchemas.listQuery.parse(query);
-    return this.content.findByTeacher(teacherId, filters);
+  async listTeacherContent(teacherId: string, query: ListQueryInput): Promise<ListResult> {
+    return this.content.findByTeacher(teacherId, query);
   }
 
-  async listAllContent(query: unknown): Promise<ListResult> {
-    const filters = ContentSchemas.listQuery.parse(query);
-    return this.content.findAll(filters);
+  async listAllContent(query: ListQueryInput): Promise<ListResult> {
+    return this.content.findAll(query);
   }
 }

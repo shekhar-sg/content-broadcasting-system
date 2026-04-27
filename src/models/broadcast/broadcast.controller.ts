@@ -1,4 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
+import { z } from "zod";
+import { HttpError } from "../../common/utils/http.error";
 import { ResponseUtil } from "../../common/utils/response.util";
 import { BroadcastSchemas } from "./broadcast.schemas";
 import type { BroadcastService } from "./broadcast.service";
@@ -8,9 +10,17 @@ export class BroadcastController {
 
   getLive = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { teacherId } = BroadcastSchemas.params.parse(req.params);
-      const { subject } = BroadcastSchemas.query.parse(req.query);
-      const content = await this.service.getLiveContent(teacherId, subject);
+      const params = BroadcastSchemas.params.safeParse(req.params);
+      if (!params.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors);
+      }
+
+      const query = BroadcastSchemas.query.safeParse(req.query);
+      if (!query.success) {
+        throw HttpError.validationError("Validation error", z.flattenError(query.error).fieldErrors);
+      }
+
+      const content = await this.service.getLiveContent(params.data.teacherId, query.data.subject);
 
       if (!content) {
         ResponseUtil.success(res, null, "No content available");
