@@ -3,6 +3,7 @@ import { getApp } from "../src/server";
 
 export default async function handler(req: Request, res: Response): Promise<void> {
   try {
+    console.log("Received request:", req.method, req.url);
     const app = await getApp();
     app(req, res);
   } catch (error) {
