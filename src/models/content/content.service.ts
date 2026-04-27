@@ -1,6 +1,11 @@
 import "multer";
 import { HttpError } from "../../common/utils/http.error";
-import type { ContentRecord, ContentRepository, ListResult } from "./content.contracts";
+import {
+  type ContentRecord,
+  type ContentRepository,
+  ContentStatus,
+  type ListResult,
+} from "./content.contracts";
 import { ContentSchemas } from "./content.schemas";
 
 export class ContentService {
@@ -25,7 +30,7 @@ export class ContentService {
       fileType: file.mimetype,
       fileSize: file.size,
       uploadedBy: teacherId,
-      status: "pending",
+      status: ContentStatus.PENDING,
       startTime: payload.startTime ? new Date(payload.startTime) : null,
       endTime: payload.endTime ? new Date(payload.endTime) : null,
       rotationDuration: payload.rotationDuration,

@@ -1,4 +1,8 @@
-export type ContentStatus = "PENDING" | "APPROVED" | "REJECTED";
+export enum ContentStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
 
 export interface ContentRecord {
   id: string;

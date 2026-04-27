@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Constants } from "../../common/utils/constants.util";
+import {ContentStatus} from "./content.contracts";
 
 export const ContentSchemas = {
   create: z
@@ -41,8 +42,8 @@ export const ContentSchemas = {
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(10),
     subject: z.enum(Constants.SUBJECTS).optional(),
-    status: z.enum(["pending", "approved", "rejected"]).optional(),
-    teacherId: z.string().uuid().optional(),
+    status: z.enum(ContentStatus).optional(),
+    teacherId: z.uuid().optional(),
   }),
 };
 
