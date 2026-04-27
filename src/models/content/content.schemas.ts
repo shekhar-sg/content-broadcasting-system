@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Constants } from "../../common/utils/constants.util";
-import {ContentStatus} from "./content.contracts";
+import { ContentStatus } from "./content.contracts";
 
 export const ContentSchemas = {
   create: z

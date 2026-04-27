@@ -5,9 +5,11 @@
   "scripts": {
     "start": "node dist/src/main.js",
     "dev": "tsx watch src/main.ts",
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc",
+    "postinstall": "prisma generate",
     "generate": "prisma generate",
-    "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:dev": "prisma migrate dev",
     "db:push": "prisma db push",
     "studio": "prisma studio",
     "format": "biome format --write .",

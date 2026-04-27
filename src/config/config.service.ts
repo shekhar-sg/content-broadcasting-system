@@ -13,23 +13,23 @@ export namespace Config {
     }
 
     static get jwtSecret(): string {
-      return this.get('JWT_SECRET');
+      return this.get("JWT_SECRET");
     }
 
     static get jwtExpiry(): string {
-      return this.get('JWT_EXPIRES_IN', '7d');
+      return this.get("JWT_EXPIRES_IN", "7d");
     }
 
     static get uploadDir(): string {
-      return this.get('UPLOAD_DIR', 'uploads');
+      return this.get("UPLOAD_DIR", "uploads");
     }
 
     static get maxFileSize(): number {
-      return parseInt(this.get('MAX_FILE_SIZE', '10485760'), 10);
+      return parseInt(this.get("MAX_FILE_SIZE", "10485760"), 10);
     }
 
     static get redisUrl(): string {
-      return this.get('REDIS_URL', 'redis://localhost:6379');
+      return this.get("REDIS_URL", "redis://localhost:6379");
     }
   }
 }

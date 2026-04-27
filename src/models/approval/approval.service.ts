@@ -26,7 +26,7 @@ export class ApprovalService {
       principalId,
       approvedAt: new Date(),
     });
-    await this.onDecision?.(approved)
+    await this.onDecision?.(approved);
     return approved;
   }
 
@@ -44,7 +44,7 @@ export class ApprovalService {
       contentId,
       reason: payload.reason,
     });
-    await this.onDecision?.(rejected)
+    await this.onDecision?.(rejected);
     return rejected;
   }
 }
