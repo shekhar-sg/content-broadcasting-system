@@ -7,7 +7,10 @@ export class ContentRepository implements ContentModule.ContentRepository {
   private mapContent(
     content: Prisma.ContentGetPayload<Record<string, never>>
   ): ContentModule.ContentRecord {
-    return content;
+    return {
+      ...content,
+      status: content.status as ContentModule.ContentRecord["status"],
+    };
   }
 
   async create(
