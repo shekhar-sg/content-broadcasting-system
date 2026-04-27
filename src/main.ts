@@ -1,4 +1,3 @@
-import type { Express } from "express";
 import { createApp } from "./app";
 import { Config } from "./config/config.service";
 import { AnalyticsModule } from "./models/analytics/analytics.namespace";
@@ -13,7 +12,7 @@ import { ContentModule } from "./models/content/content.namespace";
 import { ContentRepository } from "./models/content/content.repository";
 import { Database } from "./prisma/prisma.service";
 
-async function bootstrap(): Promise<Express> {
+async function bootstrap() {
   const prisma = Database.getInstance();
   await prisma.$connect();
 
@@ -50,8 +49,9 @@ async function bootstrap(): Promise<Express> {
 
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
-
-  return app;
 }
 
-export default bootstrap;
+bootstrap().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+});
