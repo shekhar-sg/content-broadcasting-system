@@ -32,6 +32,14 @@ export function createApp(services: AppServices = {}): Express {
     res.status(200).json({ success: true, message: "Healthy" });
   });
 
+  app.get("/docs/postman", (_req, res) => {
+    const collectionPath = path.resolve(
+      __dirname,
+      "../docs/postman/content-broadcasting-system.postman_collection.json",
+    );
+    res.download(collectionPath, "content-broadcasting-system.postman_collection.json");
+  });
+
   if (services.authService) {
     app.use("/api/auth", AuthModule.createRouter(services.authService));
   }
