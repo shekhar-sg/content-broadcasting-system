@@ -25,7 +25,7 @@ export function createApp(services: AppServices = {}): Express {
   app.use(express.urlencoded({ extended: true }));
   app.use("./uploads", express.static(path.resolve(Config.Service.uploadDir)));
 
-  app.get("/health", (_req, res) => {
+  app.get("/", (_req, res) => {
     res.status(200).json({ success: true, message: "Healthy" });
   });
 
@@ -42,11 +42,11 @@ export function createApp(services: AppServices = {}): Express {
   }
 
   if (services.broadcastService) {
-    app.use("/content", BroadcastModule.createRouter(services.broadcastService));
+    app.use("api/content", BroadcastModule.createRouter(services.broadcastService));
   }
 
   if (services.analyticsService) {
-    app.use("api/analytics", AnalyticsModule.createRouter(services.analyticsService));
+    app.use("/api/analytics", AnalyticsModule.createRouter(services.analyticsService));
   }
 
   app.use(HttpExceptionFilter.handle);
