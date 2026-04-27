@@ -1,50 +1,13 @@
 import type { Prisma, PrismaClient } from "../../../generated/prisma/client";
 import type { ContentModule } from "./content.namespace";
 
-const toPrismaStatus = (
-  status: ContentModule.ContentStatus
-): Prisma.ContentCreateInput["status"] => {
-  switch (status) {
-    case "pending":
-      return "PENDING";
-    case "approved":
-      return "APPROVED";
-    case "rejected":
-      return "REJECTED";
-    default:
-      return "PENDING";
-  }
-};
-
-const fromPrismaStatus = (status: string): ContentModule.ContentStatus => {
-  switch (status) {
-    case "PENDING":
-    case "Pending":
-    case "pending":
-      return "pending";
-    case "APPROVED":
-    case "Approved":
-    case "approved":
-      return "approved";
-    case "Rejected":
-    case "REJECTED":
-    case "rejected":
-      return "rejected";
-    default:
-      return "pending";
-  }
-};
-
 export class ContentRepository implements ContentModule.ContentRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   private mapContent(
     content: Prisma.ContentGetPayload<Record<string, never>>
   ): ContentModule.ContentRecord {
-    return {
-      ...content,
-      status: fromPrismaStatus(content.status),
-    };
+    return content;
   }
 
   async create(
@@ -79,8 +42,7 @@ export class ContentRepository implements ContentModule.ContentRepository {
 
       const content = await tx.content.create({
         data: {
-          ...(input),
-          status: toPrismaStatus(input.status),
+          ...input,
         },
       });
 
@@ -103,7 +65,7 @@ export class ContentRepository implements ContentModule.ContentRepository {
     const where: Prisma.ContentWhereInput = {
       uploadedBy: teacherId,
       ...(query.subject ? { subject: query.subject } : {}),
-      ...(query.status ? { status: toPrismaStatus(query.status) } : {}),
+      ...(query.status ? { status: query.status } : {}),
     };
 
     const [total, items] = await this.prisma.$transaction([
@@ -127,7 +89,7 @@ export class ContentRepository implements ContentModule.ContentRepository {
   ): Promise<{ items: ContentModule.ContentRecord[]; total: number }> {
     const where: Prisma.ContentWhereInput = {
       ...(query.subject ? { subject: query.subject } : {}),
-      ...(query.status ? { status: toPrismaStatus(query.status) } : {}),
+      ...(query.status ? { status: query.status } : {}),
       ...(query.teacherId ? { uploadedBy: query.teacherId } : {}),
     };
 

@@ -5,6 +5,7 @@ import { ApprovalSchemas } from "./approval.schemas";
 export class ApprovalService {
   constructor(
     private readonly repository: ApprovalRepository,
+    private readonly onDecision?: (record: ApprovalRecord) => Promise<void>
   ) {}
 
   async listPending(): Promise<ApprovalRecord[]> {
@@ -25,6 +26,7 @@ export class ApprovalService {
       principalId,
       approvedAt: new Date(),
     });
+    await this.onDecision?.(approved)
     return approved;
   }
 
@@ -42,6 +44,7 @@ export class ApprovalService {
       contentId,
       reason: payload.reason,
     });
+    await this.onDecision?.(rejected)
     return rejected;
   }
 }

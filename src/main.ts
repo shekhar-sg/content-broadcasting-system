@@ -5,12 +5,12 @@ import { UserRepository } from "./models/auth/auth.repository";
 import { Database } from "./prisma/prisma.service";
 import { ContentRepository } from "./models/content/content.repository";
 import { ContentModule } from "./models/content/content.namespace";
-import { ApprovalRepository } from './models/approval/approval.repository';
-import {ApprovalModule} from "./models/approval/approval.namespace";
-import {BroadcastRepository} from "./models/broadcast/broadcast.repository";
-import {BroadcastModule} from "./models/broadcast/broadcast.namespace";
-import {AnalyticsModule} from "./models/analytics/analytics.namespace";
-import {AnalyticsRepository} from "./models/analytics/analytics.repository";
+import { ApprovalRepository } from "./models/approval/approval.repository";
+import { ApprovalModule } from "./models/approval/approval.namespace";
+import { BroadcastRepository } from "./models/broadcast/broadcast.repository";
+import { BroadcastModule } from "./models/broadcast/broadcast.namespace";
+import { AnalyticsModule } from "./models/analytics/analytics.namespace";
+import { AnalyticsRepository } from "./models/analytics/analytics.repository";
 
 async function bootstrap(): Promise<void> {
   const prisma = Database.getInstance();
@@ -22,11 +22,17 @@ async function bootstrap(): Promise<void> {
   const broadcastRepository = new BroadcastRepository(prisma);
   const analyticsRepository = new AnalyticsRepository(prisma);
 
+  const broadcastService = new BroadcastModule.Service(broadcastRepository);
+
   const app = createApp({
     authService: new AuthModule.Service(userRepository),
     contentService: new ContentModule.Service(contentRepository),
-    approvalService: new ApprovalModule.Service(approvalRepository),
-    broadcastService: new BroadcastModule.Service(broadcastRepository),
+    approvalService: new ApprovalModule.Service(approvalRepository, async (record) => {
+      if (record.uploadedBy) {
+        await broadcastService.invalidateTeacherCache(record.uploadedBy);
+      }
+    }),
+    broadcastService,
     analyticsService: new AnalyticsModule.Service(analyticsRepository),
   });
 

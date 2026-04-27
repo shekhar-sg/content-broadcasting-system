@@ -1,4 +1,4 @@
-export type ContentStatus = "pending" | "approved" | "rejected";
+export type ContentStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export interface ContentRecord {
   id: string;

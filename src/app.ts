@@ -6,6 +6,7 @@ import { ContentModule } from "./models/content/content.namespace";
 import { BroadcastModule } from "./models/broadcast/broadcast.namespace";
 import { AnalyticsModule } from "./models/analytics/analytics.namespace";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import path from "node:path";
 
 export interface AppServices {
   authService?: AuthModule.Service;
@@ -21,6 +22,7 @@ export function createApp(services: AppServices = {}): Express {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use("./uploads", express.static(path.resolve(process.env.UPLOAD_DIR ?? "uploads")));
 
   app.get("/health", (_req, res) => {
     res.status(200).json({ success: true, message: "Healthy" });
