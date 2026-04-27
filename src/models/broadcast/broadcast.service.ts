@@ -7,20 +7,25 @@ export class BroadcastService {
 
   async getLiveContent(teacherId: string, subject?: string): Promise<LiveContentItem | null> {
     const cacheKey = `live:${teacherId}:${subject ?? "all"}`;
-    const cached = await RedisConfig.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached) as LiveContentItem;
+    try {
+      const cached = await RedisConfig.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached) as LiveContentItem;
+      }
+
+      const items = await this.repository.findApprovedLiveContent(teacherId, subject);
+      const activeItem = BroadcastRotationService.pickActiveContent(items);
+
+      if (activeItem) {
+        const ttl = Math.max(1, Math.min(activeItem.rotationDuration * 60, 60));
+        await RedisConfig.set(cacheKey, JSON.stringify(activeItem), ttl);
+      }
+
+      return activeItem;
+    } catch (error) {
+      console.error("Error fetching live content:", error);
+      return null;
     }
-
-    const items = await this.repository.findApprovedLiveContent(teacherId, subject);
-    const activeItem = BroadcastRotationService.pickActiveContent(items);
-
-    if (activeItem) {
-      const ttl = Math.max(1, Math.min(activeItem.rotationDuration * 60, 60));
-      await RedisConfig.set(cacheKey, JSON.stringify(activeItem), ttl);
-    }
-
-    return activeItem;
   }
 
   async invalidateTeacherCache(teacherId: string): Promise<void> {

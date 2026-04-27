@@ -1,6 +1,7 @@
 import path from "node:path";
 import cors from "cors";
 import express, { type Express } from "express";
+import morgan from "morgan";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { Config } from "./config/config.service";
 import { AnalyticsModule } from "./models/analytics/analytics.namespace";
@@ -19,8 +20,10 @@ export interface AppServices {
 
 export function createApp(services: AppServices = {}): Express {
   const app = express();
+  const requestLogFormat = process.env.NODE_ENV === "production" ? "combined" : "dev";
 
   app.use(cors());
+  app.use(morgan(requestLogFormat));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use("/uploads", express.static(path.resolve(Config.Service.uploadDir)));
