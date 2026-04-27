@@ -23,12 +23,13 @@ export class ApprovalController {
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    try {
-      const params = ApprovalSchemas.params.safeParse(req.params);
-      if (!params.success) {
-        throw HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors);
-      }
+    const params = ApprovalSchemas.params.safeParse(req.params);
+    if (!params.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors));
+      return;
+    }
 
+    try {
       const item = await this.service.approveContent(params.data.contentId, req.user!.userId);
       ResponseUtil.success(res, item, "Content approved");
     } catch (error) {
@@ -37,17 +38,19 @@ export class ApprovalController {
   };
 
   reject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const params = ApprovalSchemas.params.safeParse(req.params);
+    if (!params.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors));
+      return;
+    }
+
+    const body = ApprovalSchemas.reject.safeParse(req.body);
+    if (!body.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(body.error).fieldErrors));
+      return;
+    }
+
     try {
-      const params = ApprovalSchemas.params.safeParse(req.params);
-      if (!params.success) {
-        throw HttpError.validationError("Validation error", z.flattenError(params.error).fieldErrors);
-      }
-
-      const body = ApprovalSchemas.reject.safeParse(req.body);
-      if (!body.success) {
-        throw HttpError.validationError("Validation error", z.flattenError(body.error).fieldErrors);
-      }
-
       const item = await this.service.rejectContent(params.data.contentId, body.data.reason);
       ResponseUtil.success(res, item, "Content rejected");
     } catch (error) {
@@ -55,3 +58,5 @@ export class ApprovalController {
     }
   };
 }
+
+

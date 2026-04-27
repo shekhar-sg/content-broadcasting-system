@@ -9,7 +9,6 @@ export namespace HttpExceptionFilter {
       return;
     }
 
-    // ZodError safety net — catches any raw .parse() that escapes a controller
     if (err instanceof ZodError) {
       res.status(400).json({
         success: false,

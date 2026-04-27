@@ -16,16 +16,18 @@ export class ContentController {
   constructor(private readonly service: ContentService) {}
 
   create = async (req: AuthGuard.AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.file) {
+      next(HttpError.badRequest("File is required"));
+      return;
+    }
+
+    const body = ContentSchemas.create.safeParse(req.body);
+    if (!body.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(body.error).fieldErrors));
+      return;
+    }
+
     try {
-      if (!req.file) {
-        throw HttpError.badRequest("File is required");
-      }
-
-      const body = ContentSchemas.create.safeParse(req.body);
-      if (!body.success) {
-        throw HttpError.validationError("Validation error", z.flattenError(body.error).fieldErrors);
-      }
-
       const content = await this.service.createContent(req.user!.userId, body.data, req.file);
       ResponseUtil.created(res, sanitizeContent(content), "Content uploaded");
     } catch (error) {
@@ -38,12 +40,13 @@ export class ContentController {
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    try {
-      const query = ContentSchemas.listQuery.safeParse(req.query);
-      if (!query.success) {
-        throw HttpError.validationError("Validation error", z.flattenError(query.error).fieldErrors);
-      }
+    const query = ContentSchemas.listQuery.safeParse(req.query);
+    if (!query.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(query.error).fieldErrors));
+      return;
+    }
 
+    try {
       const result = await this.service.listTeacherContent(req.user!.userId, query.data);
       ResponseUtil.success(res, result.items.map(sanitizeContent), "Content fetched", 200, {
         total: result.total,
@@ -54,12 +57,13 @@ export class ContentController {
   };
 
   listAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const query = ContentSchemas.listQuery.safeParse(req.query);
-      if (!query.success) {
-        throw HttpError.validationError("Validation error", z.flattenError(query.error).fieldErrors);
-      }
+    const query = ContentSchemas.listQuery.safeParse(req.query);
+    if (!query.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(query.error).fieldErrors));
+      return;
+    }
 
+    try {
       const result = await this.service.listAllContent(query.data);
       ResponseUtil.success(res, result.items.map(sanitizeContent), "Content fetched", 200, {
         total: result.total,
@@ -69,3 +73,5 @@ export class ContentController {
     }
   };
 }
+
+

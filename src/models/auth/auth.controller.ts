@@ -15,14 +15,13 @@ export class AuthController {
   constructor(private readonly service: AuthService) {}
 
   registerTeacher = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const payload = AuthSchemas.registerTeacher.safeParse(req.body);
+    if (!payload.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(payload.error).fieldErrors));
+      return;
+    }
+
     try {
-      const payload = AuthSchemas.registerTeacher.safeParse(req.body);
-      if (!payload.success) {
-        throw HttpError.validationError(
-          "Validation error",
-          z.flattenError(payload.error).fieldErrors
-        );
-      }
       const result = await this.service.registerTeacher(payload.data);
       ResponseUtil.created(
         res,
@@ -35,21 +34,17 @@ export class AuthController {
   };
 
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const payload = AuthSchemas.login.safeParse(req.body);
+    if (!payload.success) {
+      next(HttpError.validationError("Validation error", z.flattenError(payload.error).fieldErrors));
+      return;
+    }
+
     try {
-      const payload = AuthSchemas.login.safeParse(req.body);
-      if (!payload.success) {
-        throw HttpError.validationError(
-          "Validation error",
-          z.flattenError(payload.error).fieldErrors
-        );
-      }
       const result = await this.service.login(payload.data);
       ResponseUtil.success(
         res,
-        {
-          token: result.token,
-          user: sanitizeUser(result.user),
-        },
+        { token: result.token, user: sanitizeUser(result.user) },
         "Login successfully"
       );
     } catch (error) {
@@ -57,3 +52,5 @@ export class AuthController {
     }
   };
 }
+
+
