@@ -1,12 +1,11 @@
 import { Config } from "./config/config.service";
 import { Database } from "./prisma/prisma.service";
-import { disconnectAppDependencies, getApp } from "./server";
+import app, { disconnectAppDependencies } from "./server";
 
 async function bootstrap() {
   await Database.getInstance().$connect();
-  const app = await getApp();
 
-  const server = app.listen(Config.Service.port, () => {
+  const server = (await app).listen(Config.Service.port, () => {
     console.log(`Server is running on http://localhost:${Config.Service.port}`);
   });
 

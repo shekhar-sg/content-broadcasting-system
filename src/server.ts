@@ -45,7 +45,9 @@ export async function getApp(): Promise<Express> {
   return appPromise;
 }
 
-export default getApp;
+const app = getApp();
+
+export default app;
 
 export async function disconnectAppDependencies(): Promise<void> {
   await Database.disconnect();
